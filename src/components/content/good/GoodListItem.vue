@@ -55,6 +55,6 @@
     }
     .collect::before{
         content: '';
-        background-image: url('');
+        background-image: url('~assets/images/collect.png');
     }
 </style>
