@@ -1,7 +1,11 @@
 <!--  -->
 <template>
     <div class="nav-bar">
-        <div class="left" @click="goback"><slot name="left"></slot></div>
+        <div class="left" @click="goback">
+            <slot name="left">
+                <img src="~assets/images/left.png" alt="">
+            </slot>
+        </div>
         <div class="center"><slot>EWShop</slot></div>
         <div class="right"><slot name="right"></slot></div>
     </div>
@@ -39,6 +43,10 @@
         line-height: 45px;
         text-align: center;
         box-shadow: 0 2px 0 rgba(100, 100, 100, .1);
+    }
+    .left img{
+        width: 45px;
+        padding: 12px;
     }
     .left,.right{
         width:60px;

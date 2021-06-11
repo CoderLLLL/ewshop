@@ -6,8 +6,8 @@ export function getHomeAllData(){
     }) 
 }
 
-export function getHomeGoodList(){
+export function getHomeGoods(type='sales',page=1){
     return request({
-        url:'/api/goods'
+        url:'/api/index?'+type+'=1&'+page,
     })
 }

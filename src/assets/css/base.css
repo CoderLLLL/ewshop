@@ -14,6 +14,7 @@
     margin:0;
     padding:0;
     box-sizing: border-box;
+    
 }
 
 body {
@@ -21,6 +22,7 @@ body {
     background: var(--color-background);
     color:var(--color-text);
     width:100vw;
+    background-color: #f7f8fa;
 }
 
 a {
@@ -39,4 +41,30 @@ a {
 img {
     max-width: 100% !important;
     height: auto !important;
+}
+
+.van-submit-bar{
+    z-index:0;
+}
+.van-switch--on{
+    background-color:#42b983
+}
+/* .van-button--default{
+    background-color: #ee0a24 !important;
+    border: none;
+    color: white;
+} 
+ */
+.van-dialog__cancel,.van-dialog__confirm{
+    background-color: white !important;
+    color: black;
+}
+
+.van-dialog__confirm{
+    color: #ee0a24 !important;
+} 
+
+.van-popup{
+    height: auto !important;
+    padding: 10px;
 }

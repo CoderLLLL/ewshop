@@ -18,7 +18,7 @@
                default(){
                    return []
                }
-           }
+           },
         },
         setup(props,{emit}){
             let currentindex = ref(0);
@@ -43,6 +43,7 @@
         position: sticky;
         top:44px;
         background-color: white;
+        z-index: 3;
     }
     .tab-control-item{
         flex: 1;

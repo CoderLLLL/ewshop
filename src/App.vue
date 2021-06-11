@@ -1,18 +1,27 @@
 <template>
-  <router-view/>
+  <router-view v-slot="{ Component }">
+      <keep-alive exclude="Detail,ShopCart,Address,AddressEdit,CreateOrder">
+        <component :is="Component"></component>
+      </keep-alive>
+  </router-view>
 
   <div id="nav">
     <router-link class="tab-bar-item" to="/home">
       <div class="icon"><i class="iconfont icon-shouye"></i> </div>
       <div>首页</div>
     </router-link>
-    <router-link class="tab-bar-item" to="/detail">
+    <router-link class="tab-bar-item" to="/categroy">
       <div class="icon"><i class="iconfont icon-fenlei"></i> </div>
       <div>分类</div>
     </router-link>
     <router-link class="tab-bar-item" to="/shopcart">
-      <div class="icon"><i class="iconfont icon-gouwuchezhengpin"></i> </div>
-      <div>首购物车</div>
+      <div class="icon">
+        <van-badge :content="$store.state.cartCount" max="9">
+          <div class="child" />
+          <i class="iconfont icon-gouwuchezhengpin"></i>
+        </van-badge>
+      </div>
+      <div>购物车</div>
     </router-link>
     <router-link class="tab-bar-item" to="/profile">
       <div class="icon"><i class="iconfont icon-yonghu"></i> </div>
@@ -40,7 +49,8 @@
   left: 0;
   right: 0;
   bottom: 0;
-  box-shadow: 0 -3px 1px rgba(100, 100, 100, .1) 
+  box-shadow: 0 -3px 1px rgba(100, 100, 100, .1);
+  z-index: 10;
 }
 
 #nav a{
