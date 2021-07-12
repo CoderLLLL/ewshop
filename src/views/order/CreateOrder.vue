@@ -64,11 +64,13 @@
         <van-grid :border="false" :column-num="3">
             <van-grid-item>
               支付宝二维码<br>
-              <van-image width="150" height="150" :src="aliyun" />
+              <!-- <van-image width="150" height="150" :src="datas" />  -->
+              <div id="qrcode" class="qrcode"></div>
             </van-grid-item>
             <van-grid-item>
               微信二维码<br>
-              <van-image width="150" height="150" :src="wechat" />
+              <!-- <van-image width="150" height="150" :src="wechat" /> -->
+              <div id="qrcode2" class="qrcode"></div>
             </van-grid-item>
           </van-grid>
         </van-popup>
@@ -76,16 +78,17 @@
 </template>
 
 <script>
-    import { reactive, onMounted, toRefs, computed } from 'vue'
+    import { reactive, onMounted, toRefs, ref, computed, nextTick} from 'vue'
     import NavBar from "components/common/navbar/NavBar";
     import { getOrderPreview,createOrder,payOrder,payOrderStatus } from 'network/order'
     import { Toast } from 'vant'
     import { useRoute, useRouter } from 'vue-router'
     import {useStore} from 'vuex';
+    import { qrcanvas } from 'qrcanvas';
     export default {
         name:'CreateOrder',
         components: {
-            NavBar
+            NavBar,
         },
         setup() {
             const router = useRouter()
@@ -150,9 +153,22 @@
                     payOrder(state.orderNo,{type:'aliyun'}).then(res=>{
                         state.aliyun = res.qr_code_url;
                         state.wechat = res.qr_code_url;
-                        console.log(res.qr_code_url);
-                    }).catch(err=>{})
+                        
+                        const canvas = qrcanvas({
+                            data:res.qr_code,
+                            size:128,  
+                        })
+                        document.getElementById("qrcode").innerHTML = '';
+                        document.getElementById("qrcode").appendChild(canvas);
 
+                        const canvas2 = qrcanvas({
+                            data:res.qr_code,
+                            size:128,  
+                        })
+                        document.getElementById("qrcode2").innerHTML = '';
+                        document.getElementById("qrcode2").appendChild(canvas2);
+
+                    }).catch(err=>{})
                     //由于微信没有沙箱环境，无法调试
                    /*  payOrder(state.orderNo,{type:'wechat'}).then(res=>{
                         state.wechat = res.qr_code_url
@@ -178,7 +194,7 @@
                 })
 
             }
-
+           
             const close = () => {
                 router.push({path:'/orderdetail', query:{id:state.orderNo}})
             }
@@ -198,7 +214,7 @@
                 goTo,
                 handleCreateOrder,
                 close,
-                total,
+                total,                
             }
         }
     }
@@ -331,5 +347,11 @@
     .submit-all {
         margin-bottom: 50px;
         z-index: 9 !important;
+    }
+    .van-grid-item{
+        flex: 1 !important;
+    }
+    .qrcode{
+        padding-top: 20px;
     }
 </style>

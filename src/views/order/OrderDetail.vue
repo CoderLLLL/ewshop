@@ -2,7 +2,7 @@
   <div class="order-detail-box">
     <nav-bar class="nav-bar">
       <template v-slot:default>
-        定单详情
+        订单详情
       </template>
     </nav-bar>
     <div class="order-status">
@@ -19,8 +19,8 @@
         <span>{{detail.created_at}}</span>
       </div>
 
-      <van-button style="margin-bottom: 10px" color="#1baeae" block>去支付</van-button>
-      <van-button block >确认订单</van-button>
+      <van-button v-if="detail.status == 1" @click="showPayFn" style="margin-bottom: 10px" color="#1baeae" block>去支付</van-button>
+      <van-button v-if="detail.status == 2" @click="handleConfirmOrder" block >确认订单</van-button>
     </div>
     <div class="order-price">
       <div class="price-item">
@@ -48,20 +48,23 @@
     </div>
 
     <van-popup
-      :show="false"
+      v-model:show="showPay"
       position="bottom"
       :style="{ height: '40%' }"
+     
     >
-
-      <div :style="{ width: '90%', margin: '0 auto', padding: '50px 0' }">
+    <!--  @close="close" -->
+      <div :style="{ width: '100%', margin: '0 auto', padding: '20px 0' }">
         <van-grid :border="false" :column-num="2">
           <van-grid-item  text="支付宝">
             支付宝二维码<br>
-            <van-image width="150" height="150" :src="aliyun" />
+            <!-- <van-image width="150" height="150" :src="aliyun" /> -->
+            <div id="qrcode" class="qrcode"></div>
           </van-grid-item>
           <van-grid-item text="微信支付">
             微信二维码<br>
-            <van-image width="150" height="150" :src="wechat" />
+            <!-- <van-image width="150" height="150" :src="wechat" /> -->
+            <div id="qrcode2" class="qrcode"></div>
           </van-grid-item>
         </van-grid>
 
@@ -76,7 +79,7 @@
   import { getOrderDetail,confirmOrder,payOrder,payOrderStatus,viewExpress } from 'network/order'/* confirmOrder, */
   import { Dialog, Toast } from 'vant'
   import { useRoute, useRouter } from 'vue-router'
-
+  import { qrcanvas } from 'qrcanvas';
 
   export default {
     name: 'OrderDetail',
@@ -90,10 +93,15 @@
         orderNo:null,
         detail:{
           orderDetails:{
-            data:[]
-          }
+            data:[],
+          },
+          status:0,
         },
+        showPay:false,
+        aliyun:null,
+        wechat:null,
       }); 
+      
 
       const init = () =>{
         const {id} =  route.query;
@@ -130,7 +138,79 @@
         return sum;
       })
 
-      return {...toRefs(state),statusString,total}
+      const showPayFn = () =>{
+        state.showPay = true;
+
+        payOrder(state.orderNo,{type:'aliyun'}).then(res=>{
+          state.aliyun = res.qr_code_url;
+          state.wechat = res.qr_code_url;
+          
+          const canvas = qrcanvas({
+              data:res.qr_code,
+              size:128,  
+          })
+          document.getElementById("qrcode").innerHTML = '';
+          document.getElementById("qrcode").appendChild(canvas);
+
+          const canvas2 = qrcanvas({
+              data:res.qr_code,
+              size:128,  
+          })
+          document.getElementById("qrcode2").innerHTML = '';
+          document.getElementById("qrcode2").appendChild(canvas2);
+        }).catch(err=>{})
+
+         //支付成功后轮询查看
+        const timer = setInterval(() => {
+          payOrderStatus(state.orderNo).then(res=>{
+            if(res == '2' || res == 2){
+              clearInterval(timer);
+              state.showPay = false; 
+              router.push({
+                  path:'/orderdetail',
+                  query:{id:state.orderNo}
+              })
+            }
+            else{
+                console.log(res);
+            }
+            }).catch(err=>{
+                console.log(err);
+            })
+        }, 3000);
+
+        //由于后台出现问题，模拟支付成功
+        const timers = setTimeout(()=>{
+          clearInterval(timer);
+          state.showPay = false; 
+          state.detail.status = 2;
+          Toast.success('支付成功');
+          router.push({
+            path:'/orderdetail',
+            query:{id:state.orderNo}
+          })
+        },3000) 
+      }
+
+      const close = () => {
+        //state.showPay = false;
+        Dialog.close();
+      }
+
+      const handleConfirmOrder = () =>{
+        Dialog.confirm({
+          title:'是否确认订单'
+        }).then(()=>{
+          confirmOrder(state.orderNo),then(res=>{
+            Toast('确认成功');
+            init();
+          }).catch(err=>console.log(err));
+        }).catch(()=>{
+
+        })
+      }
+      
+      return {...toRefs(state),statusString,total,showPayFn,close,handleConfirmOrder}
     }
   }
 </script>
@@ -178,5 +258,15 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
+    }
+
+    .van-grid>.van-grid-item{
+      padding: 4px !important;
+    }
+    /* .van-grid-item{
+        flex: 1 !important;
+    } */
+    .qrcode{
+        padding-top: 20px;
     }
 </style>

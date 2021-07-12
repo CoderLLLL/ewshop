@@ -12,6 +12,7 @@ const Address = () => import('../views/profile/Address')
 const AddressEdits = () => import('../views/profile/AddressEdit')
 const CreateOrder = () => import('../views/order/CreateOrder')
 const OrderDetail = () => import('../views/order/OrderDetail')
+const Order = () => import('../views/order/Order')
 
 import { AddressEdit, Notify,Toast } from 'vant';
 
@@ -115,7 +116,15 @@ const routes = [
     meta:{
       title:'图书兄弟-订单状态'
     }
-  } 
+  },
+  {
+    path:'/order',
+    name:'order',
+    component:Order,
+    meta:{
+      title:'图书兄弟-订单列表'
+    }
+  }
 ]
 
 const router = createRouter({
